@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detalle POC – Proyecto Share</title>
+
+    <style>
+      :root {
+        --primary: #011e40;
+        --bg: #f4f6f8;
+        --card: #ffffff;
+        --text: #111;
+        --muted: #666;
+        --radius: 14px;
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: system-ui, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        padding-bottom: 90px;
+      }
+
+      header {
+        background: var(--primary);
+        color: #fff;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      header button {
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 18px;
+        cursor: pointer;
+      }
+
+      main {
+        padding: 16px;
+      }
+
+      .bloque {
+        background: var(--card);
+        border-radius: var(--radius);
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+      }
+
+      .bloque h3 {
+        margin-top: 0;
+        font-size: 16px;
+        margin-bottom: 12px;
+        color: var(--primary);
+      }
+
+      .dato {
+        font-size: 14px;
+        margin-bottom: 6px;
+      }
+
+      .dato span {
+        color: var(--muted);
+      }
+
+      .grafico {
+        height: 120px;
+        background: linear-gradient(
+          to right,
+          #ccc 30%,
+          #011e40 60%,
+          #88a4c2 90%
+        );
+        border-radius: 10px;
+      }
+
+      .btn-fijo {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        padding: 18px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <button onclick="history.back()">←</button>
+      <h2>Detalle del Punto de Venta</h2>
+    </header>
+
+    <main>
+      <!-- Información básica -->
+      <div class="bloque" id="infoBasica"></div>
+
+      <!-- Métricas & KPIs -->
+      <div class="bloque">
+        <h3>Métricas & KPIs</h3>
+        <div class="dato">Frecuencia compra: <span>Alta</span></div>
+        <div class="dato">Frecuencia visita: <span>Semanal</span></div>
+        <div class="dato">Plan de mercado: <span>Activo</span></div>
+        <div class="dato">Zona foco: <span>Sí</span></div>
+        <div class="dato">Riesgo de fuga: <span>No</span></div>
+      </div>
+
+      <!-- Equipos de frío -->
+      <div class="bloque">
+        <h3>Equipos de Frío</h3>
+        <div class="dato">Cantidad EF: <span>2</span></div>
+        <div class="dato">Estado EF: <span>Operativos</span></div>
+        <div class="dato">Cajas faltantes: <span>0</span></div>
+      </div>
+
+      <!-- Volumen -->
+      <div class="bloque">
+        <h3>Volumen</h3>
+        <div class="grafico"></div>
+        <div class="dato">Año anterior / Mes anterior / Mes actual</div>
+      </div>
+
+      <!-- Score -->
+      <div class="bloque">
+        <h3>Score DALE</h3>
+        <div class="dato">D: <span>✔</span></div>
+        <div class="dato">A: <span>✔</span></div>
+        <div class="dato">L: <span>✖</span></div>
+        <div class="dato">E: <span>✔</span></div>
+      </div>
+    </main>
+
+    <button class="btn-fijo" id="btnIniciar">Iniciar visita</button>
+
+    <script src="js/poc.js"></script>
+  </body>
+</html>

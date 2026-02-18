@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Proyecto Share</title>
+
+    <link rel="stylesheet" href="/css/theme.css" />
+    <meta name="theme-color" content="#000000" />
+
+    <style>
+      * {
+        box-sizing: border-box;
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+      }
+
+      body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f0f2f5, #e4e7eb);
+      }
+
+      .card {
+        background: #ffffff;
+        padding: 32px 28px;
+        border-radius: 14px;
+        width: 100%;
+        max-width: 380px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+      }
+
+      h1 {
+        margin: 0;
+        text-align: center;
+        font-size: 22px;
+        font-weight: 600;
+        color: #111;
+      }
+
+      h2 {
+        margin-top: 6px;
+        margin-bottom: 24px;
+        text-align: center;
+        font-size: 15px;
+        font-weight: 400;
+        color: #666;
+      }
+
+      input {
+        width: 100%;
+        padding: 14px;
+        font-size: 15px;
+        border-radius: 10px;
+        border: 1px solid #d0d5dd;
+        outline: none;
+        margin-bottom: 14px;
+      }
+
+      input:focus {
+        border-color: #000;
+      }
+
+      .password-container button {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        opacity: 0.6;
+      }
+
+      .password-container button:hover {
+        opacity: 1;
+      }
+
+      /* BOTÓN SIEMPRE VISIBLE */
+      #btnLogin {
+        width: 100%;
+        padding: 14px;
+        background: var(--color-primary, #000); /* fallback */
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+
+      #btnLogin:hover {
+        background: var(--color-primary-dark, #222);
+      }
+    </style>
+  </head>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/service-worker.js");
+    }
+  </script>
+
+  <body>
+    <div class="card">
+      <h1>Proyecto Share</h1>
+      <h2>Iniciar sesión</h2>
+
+      <input id="usuario" placeholder="Usuario" />
+
+      <div class="password-container">
+        <input type="password" id="password" placeholder="Contraseña" />
+        <button type="button" id="togglePassword"></button>
+      </div>
+
+      <button id="btnLogin">Ingresar</button>
+    </div>
+
+    <!-- MISMO SCRIPT, MISMA LÓGICA -->
+    <script src="/login.js"></script>
+  </body>
+</html>

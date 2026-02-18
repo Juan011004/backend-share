@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Proyecto Share</title>
+
+    <meta name="theme-color" content="#011E40" />
+
+    <style>
+      :root {
+        --color-primary: #011e40;
+        --color-primary-dark: #00162f;
+        --color-bg: #f4f6f8;
+        --color-text: #111;
+        --color-muted: #555;
+        --radius: 14px;
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+      }
+
+      body {
+        margin: 0;
+        background: var(--color-bg);
+        color: var(--color-text);
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      header {
+        background: var(--color-primary);
+        color: #fff;
+        padding: 16px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      header h1 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      main {
+        flex: 1;
+        padding: 24px 20px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .saludo {
+        font-size: 18px;
+        margin-bottom: 20px;
+      }
+
+      .contador {
+        font-size: 64px;
+        font-weight: 700;
+        margin: 0;
+        color: var(--color-primary);
+      }
+
+      .texto-contador {
+        font-size: 14px;
+        margin-bottom: 40px;
+        color: var(--color-muted);
+      }
+
+      .btn-principal {
+        width: 100%;
+        background: var(--color-primary);
+        color: #fff;
+        padding: 16px;
+        border-radius: var(--radius);
+        border: none;
+        font-size: 16px;
+        margin-bottom: 16px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .btn-principal:hover {
+        background: var(--color-primary-dark);
+      }
+
+      .btn-secundario {
+        width: 100%;
+        background: #fff;
+        border: 2px solid var(--color-primary);
+        color: var(--color-primary);
+        padding: 16px;
+        border-radius: var(--radius);
+        font-size: 16px;
+        margin-bottom: 16px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .btn-logout {
+        width: 100%;
+        margin-top: auto;
+        background: #fff;
+        border: 1px solid #ccc;
+        padding: 14px;
+        border-radius: var(--radius);
+        font-size: 14px;
+        cursor: pointer;
+        color: #c0392b;
+      }
+    </style>
+  </head>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/service-worker.js");
+    }
+  </script>
+
+  <body>
+    <header>
+      <h1>Proyecto Share</h1>
+    </header>
+
+    <main>
+      <div class="saludo" id="saludo"></div>
+
+      <p class="contador" id="contadorVisitas">0</p>
+      <p class="texto-contador">Visitas programadas para hoy</p>
+
+      <button class="btn-principal" id="btnVerVisitas">
+        Ver Puntos de Venta
+      </button>
+
+      <button class="btn-secundario" id="btnSync">
+        Sincronizar información
+      </button>
+
+      <button class="btn-logout" id="logoutBtn">Cerrar sesión</button>
+    </main>
+
+    <script src="/index.js"></script>
+  </body>
+</html>

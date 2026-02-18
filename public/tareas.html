@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tareas – Proyecto Share</title>
+
+    <style>
+      :root {
+        --primary: #011e40;
+        --bg: #f4f6f8;
+        --card: #ffffff;
+        --muted: #666;
+        --radius: 14px;
+      }
+
+      * {
+        box-sizing: border-box;
+        font-family: system-ui, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        padding-bottom: 100px;
+      }
+
+      header {
+        background: var(--primary);
+        color: #fff;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      header button {
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 18px;
+        cursor: pointer;
+      }
+
+      main {
+        padding: 16px;
+      }
+
+      .tarea {
+        background: var(--card);
+        border-radius: var(--radius);
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+      }
+
+      .tarea h4 {
+        margin: 0 0 10px;
+        font-size: 15px;
+      }
+
+      .acciones {
+        display: flex;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .acciones button {
+        flex: 1;
+        padding: 12px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .foto {
+        background: var(--primary);
+        color: #fff;
+      }
+
+      .justificar {
+        background: #fff;
+        border: 2px solid var(--primary);
+        color: var(--primary);
+      }
+
+      .estado {
+        margin-top: 10px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .btn-fijo {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        padding: 18px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <button onclick="history.back()">←</button>
+      <h2>Tareas de la Visita</h2>
+    </header>
+
+    <main id="listaTareas"></main>
+
+    <button class="btn-fijo" id="btnCerrar">Cerrar visita</button>
+
+    <script src="/js/tareas.js"></script>
+  </body>
+</html>

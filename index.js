@@ -1,0 +1,233 @@
+console.log("🚀 Ejecutando index.js");
+
+require("dotenv").config();
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const verificarToken = require("./middleware/auth");
+console.log("Tipo verificarToken:", typeof verificarToken); // debe mostrar 'function'
+
+const express = require("express");
+const cors = require("cors");
+const multer = require("multer");
+const { v4: uuidv4 } = require("uuid");
+const fs = require("fs");
+const path = require("path");
+const mysql = require("mysql2");
+
+console.log("ENV TEST ==================");
+console.log("DB_HOST:", process.env.DB_HOST);
+console.log("DB_USER:", process.env.DB_USER);
+console.log("DB_PASSWORD:", process.env.DB_PASSWORD ? "OK" : "VACÍO");
+console.log("DB_NAME:", process.env.DB_NAME);
+console.log("DB_PORT:", process.env.DB_PORT);
+console.log("============================");
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+const db = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT,
+});
+
+// =====================
+// Middlewares
+// =====================
+app.use(cors());
+app.use(express.json());
+app.use("/uploads", express.static("uploads"));
+app.use(express.static("public"));
+
+// =====================
+// Configuración Multer
+// =====================
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/fotos/");
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = uuidv4() + path.extname(file.originalname);
+    cb(null, uniqueName);
+  },
+});
+
+const upload = multer({ storage });
+
+db.connect((err) => {
+  if (err) {
+    console.error("❌ Error conectando a MySQL:", err);
+  } else {
+    console.log("✅ Conectado a MySQL");
+  }
+});
+// =====================
+// Rutas
+// =====================
+app.get("/", (req, res) => {
+  res.send("Servidor funcionando correctamente (modo archivos planos)");
+});
+
+// Obtener tareas
+app.get("/tareas/:codigo", (req, res) => {
+  const codigo = req.params.codigo;
+  const tareas = JSON.parse(fs.readFileSync(tareasPath, "utf8"));
+
+  const resultado = tareas.filter(
+    (t) => t.codigo_cliente === codigo && t.estado === "pendiente",
+  );
+
+  res.json(resultado);
+});
+
+// Guardar reporte SIN foto
+app.post("/reporte", (req, res) => {
+  const { codigo_cliente, usuario, comentarios, latitud, longitud, foto_url } =
+    req.body;
+
+  const reportes = JSON.parse(fs.readFileSync(reportesPath, "utf8"));
+
+  const nuevoReporte = {
+    id: Date.now(),
+    codigo_cliente,
+    usuario,
+    comentarios,
+    latitud,
+    longitud,
+    foto_url,
+    fecha: new Date().toISOString(),
+  };
+
+  reportes.push(nuevoReporte);
+  fs.writeFileSync(reportesPath, JSON.stringify(reportes, null, 2));
+
+  res.json({
+    mensaje: "Reporte guardado con éxito (archivo local)",
+    id: nuevoReporte.id,
+  });
+});
+
+// Guardar reporte CON foto
+app.post("/reporte-con-foto", upload.single("foto"), (req, res) => {
+  try {
+    const { codigo_cliente, usuario, comentarios, latitud, longitud } =
+      req.body;
+
+    const foto_url = req.file ? `/uploads/fotos/${req.file.filename}` : null;
+
+    const reportes = JSON.parse(fs.readFileSync(reportesPath, "utf8"));
+
+    const nuevoReporte = {
+      id: Date.now(),
+      codigo_cliente,
+      usuario,
+      comentarios,
+      latitud,
+      longitud,
+      foto_url,
+      fecha: new Date().toISOString(),
+    };
+
+    reportes.push(nuevoReporte);
+    fs.writeFileSync(reportesPath, JSON.stringify(reportes, null, 2));
+
+    res.json({
+      mensaje: "Reporte con foto guardado correctamente",
+      reporte: nuevoReporte,
+    });
+  } catch (error) {
+    console.log("ERROR REAL:", error);
+    res.status(500).json({ error: "Error guardando el reporte" });
+  }
+});
+
+// =====================
+// Servidor
+// =====================
+app.post("/crear-usuario", async (req, res) => {
+  const { usuario, nombre, password } = req.body;
+
+  if (!usuario || !password) {
+    return res.status(400).json({ error: "Faltan datos" });
+  }
+
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  const sql = `
+    INSERT INTO usuarios (usuario, nombre, password)
+    VALUES (?, ?, ?)
+  `;
+
+  db.query(sql, [usuario, nombre, passwordHash], (err) => {
+    if (err) {
+      return res.status(500).json({ error: "Error creando usuario" });
+    }
+
+    res.json({ mensaje: "Usuario creado correctamente" });
+  });
+});
+
+// ==============================
+// LOGIN
+// ==============================
+app.post("/login", (req, res) => {
+  const { usuario, password } = req.body;
+
+  if (!usuario || !password) {
+    return res.status(400).json({
+      mensaje: "Usuario y password son obligatorios",
+    });
+  }
+
+  const sql = "SELECT * FROM usuarios WHERE usuario = ?";
+
+  db.query(sql, [usuario], async (err, results) => {
+    if (err) {
+      return res.status(500).json({ mensaje: "Error servidor" });
+    }
+
+    if (results.length === 0) {
+      return res.status(401).json({ mensaje: "Usuario no existe" });
+    }
+
+    const usuarioDB = results[0];
+
+    const passwordOK = await bcrypt.compare(password, usuarioDB.password);
+
+    if (!passwordOK) {
+      return res.status(401).json({ mensaje: "Password incorrecto" });
+    }
+
+    // 🔐 Crear token
+    const token = jwt.sign(
+      {
+        id: usuarioDB.id,
+        usuario: usuarioDB.usuario,
+        nombre: usuarioDB.nombre,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "8h" },
+    );
+
+    res.json({
+      mensaje: "Login exitoso",
+      token,
+      usuario: usuarioDB.usuario,
+      nombre: usuarioDB.nombre,
+    });
+  });
+});
+app.get("/perfil", verificarToken, (req, res) => {
+  res.json({
+    mensaje: "Ruta protegida",
+    usuario: req.usuario,
+  });
+});
+const tareasPath = path.join(__dirname, "data", "tareas.json");
+const reportesPath = path.join(__dirname, "data", "reportes.json");
+
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
