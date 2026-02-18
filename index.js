@@ -56,6 +56,25 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+const tareasPath = path.join(__dirname, "data", "tareas.json");
+const reportesPath = path.join(__dirname, "data", "reportes.json");
+
+app.get("/", (req, res) =>
+  res.sendFile(path.join(__dirname, "public/index.html")),
+);
+app.get("/login", (req, res) =>
+  res.sendFile(path.join(__dirname, "public/login.html")),
+);
+app.get("/tareas", (req, res) =>
+  res.sendFile(path.join(__dirname, "public/tareas.html")),
+);
+app.get("/visitas", (req, res) =>
+  res.sendFile(path.join(__dirname, "public/visitas.html")),
+);
+app.get("/poc", (req, res) =>
+  res.sendFile(path.join(__dirname, "public/poc.html")),
+);
+
 db.connect((err) => {
   if (err) {
     console.error("❌ Error conectando a MySQL:", err);
@@ -225,8 +244,6 @@ app.get("/perfil", verificarToken, (req, res) => {
     usuario: req.usuario,
   });
 });
-const tareasPath = path.join(__dirname, "data", "tareas.json");
-const reportesPath = path.join(__dirname, "data", "reportes.json");
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
