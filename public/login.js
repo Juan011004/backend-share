@@ -17,7 +17,18 @@ document.getElementById("btnLogin").addEventListener("click", async () => {
     alert("Completa los datos");
     return;
   }
+  if (usuario === "maestro" && password === "1234") {
+    // Creamos un "token falso" solo para desarrollo
+    const token = "token-maestro-dev";
 
+    localStorage.setItem("token", token);
+    localStorage.setItem("usuario", "maestro");
+    localStorage.setItem("nombre", "Usuario Maestro");
+
+    // Redirigir a la página principal
+    window.location.href = "/";
+    return; // Salimos de la función
+  }
   try {
     const response = await fetch("/login", {
       method: "POST",
