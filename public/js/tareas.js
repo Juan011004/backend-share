@@ -48,6 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Cerrar visita
   document.getElementById("btnCerrar").onclick = () => {
     alert("Visita cerrada correctamente");
-    window.location.href = "/index";
+    window.location.href = "/index.html";
   };
 });
