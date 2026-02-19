@@ -9,7 +9,6 @@ const urlsToCache = [
   "/icons/icon-512.png",
 ];
 
-// INSTALAR
 self.addEventListener("install", (event) => {
   self.skipWaiting();
   event.waitUntil(
@@ -19,7 +18,6 @@ self.addEventListener("install", (event) => {
   );
 });
 
-// ACTIVAR Y BORRAR CACHE VIEJO
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -35,7 +33,6 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// FETCH
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 

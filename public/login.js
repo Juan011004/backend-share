@@ -1,4 +1,3 @@
-// ---------- TOGGLE PASSWORD (SE REGISTRA AL CARGAR) ----------
 const toggleBtn = document.getElementById("togglePassword");
 const passwordInput = document.getElementById("password");
 
@@ -8,7 +7,6 @@ toggleBtn.addEventListener("click", () => {
   toggleBtn.textContent = isPassword ? "🙈" : "👁️";
 });
 
-// ---------- LOGIN ----------
 document.getElementById("btnLogin").addEventListener("click", async () => {
   const usuario = document.getElementById("usuario").value;
   const password = passwordInput.value;
@@ -18,16 +16,14 @@ document.getElementById("btnLogin").addEventListener("click", async () => {
     return;
   }
   if (usuario === "maestro" && password === "1234") {
-    // Creamos un "token falso" solo para desarrollo
     const token = "token-maestro-dev";
 
     localStorage.setItem("token", token);
     localStorage.setItem("usuario", "maestro");
     localStorage.setItem("nombre", "Usuario Maestro");
 
-    // Redirigir a la página principal
     window.location.href = "/";
-    return; // Salimos de la función
+    return;
   }
   try {
     const response = await fetch("/login", {
@@ -48,7 +44,6 @@ document.getElementById("btnLogin").addEventListener("click", async () => {
       return;
     }
 
-    // Guardar sesión
     localStorage.setItem("token", data.token);
     localStorage.setItem("usuario", data.usuario);
     localStorage.setItem("nombre", data.nombre);

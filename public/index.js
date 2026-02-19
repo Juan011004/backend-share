@@ -8,25 +8,20 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Saludo
   const saludo = document.getElementById("saludo");
   saludo.textContent = `👋 Hola, ${nombre || usuario}`;
 
-  // SIMULACIÓN de visitas (para demo)
-  const visitasHoy = 8; // luego esto vendrá del backend
+  const visitasHoy = 8;
   document.getElementById("contadorVisitas").textContent = visitasHoy;
 
-  // Botón ir a visitas
   document.getElementById("btnVerVisitas").onclick = () => {
     window.location.href = "/visitas";
   };
 
-  // Botón sincronizar
   document.getElementById("btnSync").onclick = () => {
     alert("Sincronizando información...");
   };
 
-  // Logout
   document.getElementById("logoutBtn").onclick = () => {
     localStorage.clear();
     window.location.href = "/login";

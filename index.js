@@ -4,7 +4,7 @@ require("dotenv").config();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const verificarToken = require("./middleware/auth");
-console.log("Tipo verificarToken:", typeof verificarToken); // debe mostrar 'function'
+console.log("Tipo verificarToken:", typeof verificarToken);
 
 const express = require("express");
 const cors = require("cors");
@@ -33,17 +33,11 @@ const db = mysql.createConnection({
   port: process.env.DB_PORT,
 });
 
-// =====================
-// Middlewares
-// =====================
 app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 app.use(express.static("public"));
 
-// =====================
-// Configuración Multer
-// =====================
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/fotos/");
@@ -82,14 +76,10 @@ db.connect((err) => {
     console.log("✅ Conectado a MySQL");
   }
 });
-// =====================
-// Rutas
-// =====================
 app.get("/", (req, res) => {
   res.send("Servidor funcionando correctamente (modo archivos planos)");
 });
 
-// Obtener tareas
 app.get("/tareas/:codigo", (req, res) => {
   const codigo = req.params.codigo;
   const tareas = JSON.parse(fs.readFileSync(tareasPath, "utf8"));
@@ -101,7 +91,6 @@ app.get("/tareas/:codigo", (req, res) => {
   res.json(resultado);
 });
 
-// Guardar reporte SIN foto
 app.post("/reporte", (req, res) => {
   const { codigo_cliente, usuario, comentarios, latitud, longitud, foto_url } =
     req.body;
@@ -128,7 +117,6 @@ app.post("/reporte", (req, res) => {
   });
 });
 
-// Guardar reporte CON foto
 app.post("/reporte-con-foto", upload.single("foto"), (req, res) => {
   try {
     const { codigo_cliente, usuario, comentarios, latitud, longitud } =
@@ -162,9 +150,6 @@ app.post("/reporte-con-foto", upload.single("foto"), (req, res) => {
   }
 });
 
-// =====================
-// Servidor
-// =====================
 app.post("/crear-usuario", async (req, res) => {
   const { usuario, nombre, password } = req.body;
 
@@ -188,9 +173,6 @@ app.post("/crear-usuario", async (req, res) => {
   });
 });
 
-// ==============================
-// LOGIN
-// ==============================
 app.post("/login", (req, res) => {
   const { usuario, password } = req.body;
 
@@ -219,7 +201,6 @@ app.post("/login", (req, res) => {
       return res.status(401).json({ mensaje: "Password incorrecto" });
     }
 
-    // 🔐 Crear token
     const token = jwt.sign(
       {
         id: usuarioDB.id,
