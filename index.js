@@ -172,9 +172,7 @@ app.post("/login", async (req, res) => {
     return res.status(401).json({ mensaje: "Usuario no existe" });
   }
 
-  const passwordOK = await bcrypt.compare(password, data.password);
-
-  if (!passwordOK) {
+  if (password !== data.password) {
     return res.status(401).json({ mensaje: "Password incorrecto" });
   }
 
