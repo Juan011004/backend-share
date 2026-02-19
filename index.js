@@ -12,26 +12,15 @@ const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 const path = require("path");
-const mysql = require("mysql2");
+const { createClient } = require("@supabase/supabase-js");
 
-console.log("ENV TEST ==================");
-console.log("DB_HOST:", process.env.DB_HOST);
-console.log("DB_USER:", process.env.DB_USER);
-console.log("DB_PASSWORD:", process.env.DB_PASSWORD ? "OK" : "VACÍO");
-console.log("DB_NAME:", process.env.DB_NAME);
-console.log("DB_PORT:", process.env.DB_PORT);
-console.log("============================");
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY,
+);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
-});
 
 app.use(cors());
 app.use(express.json());
@@ -68,17 +57,6 @@ app.get("/visitas", (req, res) =>
 app.get("/poc", (req, res) =>
   res.sendFile(path.join(__dirname, "public/poc.html")),
 );
-
-db.connect((err) => {
-  if (err) {
-    console.error("❌ Error conectando a MySQL:", err);
-  } else {
-    console.log("✅ Conectado a MySQL");
-  }
-});
-app.get("/", (req, res) => {
-  res.send("Servidor funcionando correctamente (modo archivos planos)");
-});
 
 app.get("/tareas/:codigo", (req, res) => {
   const codigo = req.params.codigo;
@@ -159,21 +137,23 @@ app.post("/crear-usuario", async (req, res) => {
 
   const passwordHash = await bcrypt.hash(password, 10);
 
-  const sql = `
-    INSERT INTO usuarios (usuario, nombre, password)
-    VALUES (?, ?, ?)
-  `;
+  const { data, error } = await supabase.from("usuarios").insert([
+    {
+      usuario,
+      nombre,
+      password: passwordHash,
+    },
+  ]);
 
-  db.query(sql, [usuario, nombre, passwordHash], (err) => {
-    if (err) {
-      return res.status(500).json({ error: "Error creando usuario" });
-    }
+  if (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Error creando usuario" });
+  }
 
-    res.json({ mensaje: "Usuario creado correctamente" });
-  });
+  res.json({ mensaje: "Usuario creado correctamente" });
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
   const { usuario, password } = req.body;
 
   if (!usuario || !password) {
@@ -182,43 +162,40 @@ app.post("/login", (req, res) => {
     });
   }
 
-  const sql = "SELECT * FROM usuarios WHERE usuario = ?";
+  const { data, error } = await supabase
+    .from("usuarios")
+    .select("*")
+    .eq("usuario", usuario)
+    .single();
 
-  db.query(sql, [usuario], async (err, results) => {
-    if (err) {
-      return res.status(500).json({ mensaje: "Error servidor" });
-    }
+  if (error || !data) {
+    return res.status(401).json({ mensaje: "Usuario no existe" });
+  }
 
-    if (results.length === 0) {
-      return res.status(401).json({ mensaje: "Usuario no existe" });
-    }
+  const passwordOK = await bcrypt.compare(password, data.password);
 
-    const usuarioDB = results[0];
+  if (!passwordOK) {
+    return res.status(401).json({ mensaje: "Password incorrecto" });
+  }
 
-    const passwordOK = await bcrypt.compare(password, usuarioDB.password);
+  const token = jwt.sign(
+    {
+      id: data.id,
+      usuario: data.usuario,
+      nombre: data.nombre,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "8h" },
+  );
 
-    if (!passwordOK) {
-      return res.status(401).json({ mensaje: "Password incorrecto" });
-    }
-
-    const token = jwt.sign(
-      {
-        id: usuarioDB.id,
-        usuario: usuarioDB.usuario,
-        nombre: usuarioDB.nombre,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "8h" },
-    );
-
-    res.json({
-      mensaje: "Login exitoso",
-      token,
-      usuario: usuarioDB.usuario,
-      nombre: usuarioDB.nombre,
-    });
+  res.json({
+    mensaje: "Login exitoso",
+    token,
+    usuario: data.usuario,
+    nombre: data.nombre,
   });
 });
+
 app.get("/perfil", verificarToken, (req, res) => {
   res.json({
     mensaje: "Ruta protegida",

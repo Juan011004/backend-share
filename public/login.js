@@ -48,7 +48,7 @@ document.getElementById("btnLogin").addEventListener("click", async () => {
     localStorage.setItem("usuario", data.usuario);
     localStorage.setItem("nombre", data.nombre);
 
-    window.location.href = "/index";
+    window.location.href = "/";
   } catch (err) {
     console.error(err);
     alert("No se pudo conectar al servidor");
