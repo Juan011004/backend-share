@@ -1,4 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const token = localStorage.getItem("token");
+  const poc = JSON.parse(localStorage.getItem("pocSeleccionado"));
+
+  if (!token || !poc) {
+    window.location.href = "/login";
+    return;
+  }
   const lista = document.getElementById("listaTareas");
 
   // Simulación de tareas (luego vendrán del backend)
@@ -47,8 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Cerrar visita
   document.getElementById("btnCerrar").onclick = () => {
-    const poc = JSON.parse(localStorage.getItem("pocSeleccionado"));
-
     navigator.geolocation.getCurrentPosition((position) => {
       fetch("/api/cerrar-visita", {
         method: "POST",

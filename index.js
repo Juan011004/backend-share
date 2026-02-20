@@ -296,12 +296,13 @@ app.post("/api/iniciar-visita", verificarToken, (req, res) => {
   const DIA_ACTUAL = 1;
 
   const checkSql = `
-    SELECT * FROM visitas_realizadas
-    WHERE codigo_cliente = ?
-      AND usuario = ?
-      AND dia = ?
-      AND fecha = CURDATE()
-  `;
+  SELECT * FROM visitas_realizadas
+  WHERE codigo_cliente = ?
+    AND usuario = ?
+    AND dia = ?
+    AND fecha = CURDATE()
+    AND estado = 'ABIERTA'
+`;
 
   db.query(checkSql, [codigo_cliente, usuario, DIA_ACTUAL], (err, rows) => {
     if (rows.length > 0) {
@@ -309,10 +310,10 @@ app.post("/api/iniciar-visita", verificarToken, (req, res) => {
     }
 
     const insertSql = `
-      INSERT INTO visitas_realizadas
-      (codigo_cliente, usuario, dia, fecha, hora_inicio, lat_inicio, lng_inicio)
-      VALUES (?, ?, ?, CURDATE(), NOW(), ?, ?)
-    `;
+  INSERT INTO visitas_realizadas
+  (codigo_cliente, usuario, dia, fecha, hora_inicio, lat_inicio, lng_inicio, estado)
+  VALUES (?, ?, ?, CURDATE(), NOW(), ?, ?, 'ABIERTA')
+`;
 
     db.query(
       insertSql,

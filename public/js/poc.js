@@ -10,11 +10,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const info = document.getElementById("infoBasica");
 
   info.innerHTML = `
-    <h3>${poc.nombre}</h3>
-    <div class="dato">Código: <span>${poc.codigo}</span></div>
-    <div class="dato">Dirección: <span>${poc.direccion}</span></div>
-    <div class="dato">Tiempo visita: <span>${poc.tiempo}</span></div>
-    <div class="dato">Cantidad tareas: <span>${poc.tareas}</span></div>
+    <h3>${poc.CLIENTE}</h3>
+<div class="dato">Código: <span>${poc.codigoclientedestinatario}</span></div>
+<div class="dato">Dirección: <span>${poc.DIRECCIÓN}</span></div>
+<div class="dato">Tiempo visita: <span>${poc.Tiempo}</span></div>
   `;
   fetch(`/api/visita-activa/${poc.codigoclientedestinatario}`, {
     headers: { Authorization: "Bearer " + token },
@@ -42,6 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
           `${horas}:${minutos}:${seg}`;
       }, 1000);
     });
+  console.log("Hora inicio:", data.hora_inicio);
   document.getElementById("btnIniciar").onclick = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
