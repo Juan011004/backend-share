@@ -311,7 +311,27 @@ app.post("/api/iniciar-visita", verificarToken, (req, res) => {
     });
   });
 });
+app.post("/api/cerrar-visita", verificarToken, (req, res) => {
+  const { codigo_cliente } = req.body;
+  const usuario = req.usuario.usuario;
+  const DIA_ACTUAL = 1;
 
+  const sql = `
+    UPDATE visitas_realizadas
+    SET hora_fin = NOW(),
+        estado = 'CERRADA',
+        duracion_segundos = TIMESTAMPDIFF(SECOND, hora_inicio, NOW())
+    WHERE codigo_cliente = ?
+      AND usuario = ?
+      AND dia = ?
+      AND fecha = CURDATE()
+      AND estado = 'ABIERTA'
+  `;
+
+  db.query(sql, [codigo_cliente, usuario, DIA_ACTUAL], () => {
+    res.json({ mensaje: "Visita cerrada" });
+  });
+});
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
