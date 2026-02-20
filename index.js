@@ -232,27 +232,27 @@ app.get("/api/visitas-hoy", verificarToken, (req, res) => {
   const DIA_ACTUAL = 1;
 
   const sql = `
-    SELECT 
-      b.codigoclientedestinatario,
-      b.CLIENTE,
-      b.DIRECCIÓN,
-      b.latitud,
-      b.longitud,
-      b.Tiempo,
-      COUNT(t.id_tarea) as tareas,
-      vr.estado
-    FROM base b
-    LEFT JOIN tareas t 
-      ON b.codigoclientedestinatario = t.codigo_cliente
-    LEFT JOIN visitas_realizadas vr
-      ON b.codigoclientedestinatario = vr.codigo_cliente
-      AND vr.usuario = ?
-      AND vr.dia = ?
-      AND vr.fecha = CURDATE()
-    WHERE b.COM = ?
-      AND b.dia = ?
-    GROUP BY b.codigoclientedestinatario
-  `;
+  SELECT 
+    b.codigoclientedestinatario,
+    b.CLIENTE,
+    b.\`DIRECCIÓN\`,
+    b.latitud,
+    b.longitud,
+    b.Tiempo,
+    COUNT(t.id_tarea) as tareas,
+    vr.estado
+  FROM base b
+  LEFT JOIN tareas t 
+    ON b.codigoclientedestinatario = t.codigo_cliente
+  LEFT JOIN visitas_realizadas vr
+    ON b.codigoclientedestinatario = vr.codigo_cliente
+    AND vr.usuario = ?
+    AND vr.dia = ?
+    AND vr.fecha = CURDATE()
+  WHERE b.COM = ?
+    AND b.dia = ?
+  GROUP BY b.codigoclientedestinatario
+`;
 
   db.query(sql, [usuario, DIA_ACTUAL, usuario, DIA_ACTUAL], (err, results) => {
     if (err) return res.status(500).json({ error: "Error visitas" });
