@@ -176,21 +176,28 @@ app.post("/crear-usuario", async (req, res) => {
 
 app.post("/login", (req, res) => {
   const { usuario, password } = req.body;
+
   if (!usuario || !password) {
-    return res
-      .status(400)
-      .json({ mensaje: "Usuario y password son obligatorios" });
+    return res.status(400).json({
+      mensaje: "Usuario y password son obligatorios",
+    });
   }
+
   const sql = "SELECT * FROM usuarios WHERE usuario = ?";
+
   db.query(sql, [usuario], async (err, results) => {
     if (err) {
+      console.error("Error MySQL:", err);
       return res.status(500).json({ mensaje: "Error servidor" });
     }
+
     if (results.length === 0) {
       return res.status(401).json({ mensaje: "Usuario no existe" });
     }
+
     const usuarioDB = results[0];
-    if (password !== data.password) {
+
+    if (password !== usuarioDB.password) {
       return res.status(401).json({ mensaje: "Password incorrecto" });
     }
 
@@ -203,6 +210,7 @@ app.post("/login", (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "8h" },
     );
+
     res.json({
       mensaje: "Login exitoso",
       token,
