@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
   })
     .then((res) => res.json())
     .then((data) => {
+      console.log("Hora inicio:", data.hora_inicio);
       if (!data.activa) return;
 
       document.getElementById("btnIniciar").style.display = "none";
@@ -41,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
           `${horas}:${minutos}:${seg}`;
       }, 1000);
     });
-  console.log("Hora inicio:", data.hora_inicio);
+
   document.getElementById("btnIniciar").onclick = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
