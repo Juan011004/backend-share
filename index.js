@@ -231,7 +231,7 @@ app.get("/api/visitas-hoy", verificarToken, (req, res) => {
   const usuario = req.usuario.usuario;
 
   // 👇 variable editable
-  const DIA_ACTUAL = 0; // 0 = lunes, cambia cuando quieras
+  const DIA_ACTUAL = 1; // 0 = lunes, cambia cuando quieras
 
   const sql = `
     SELECT 
@@ -244,7 +244,7 @@ app.get("/api/visitas-hoy", verificarToken, (req, res) => {
       COUNT(t.id) as tareas
     FROM base b
     LEFT JOIN tareas t 
-      ON b.codigoclientedestinatario = t.codigocliente
+      ON b.codigoclientedestinatario = t.codigo_cliente
     WHERE b.COM = ?
       AND b.dia = ?
     GROUP BY b.codigoclientedestinatario
@@ -257,6 +257,26 @@ app.get("/api/visitas-hoy", verificarToken, (req, res) => {
     }
 
     res.json(results);
+  });
+});
+
+app.get("/api/contador-visitas", verificarToken, (req, res) => {
+  const usuario = req.usuario.usuario;
+  const DIA_ACTUAL = 1;
+
+  const sql = `
+    SELECT COUNT(*) as total
+    FROM base
+    WHERE COM = ?
+      AND dia = ?
+  `;
+
+  db.query(sql, [usuario, DIA_ACTUAL], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: "Error contador" });
+    }
+
+    res.json({ total: results[0].total });
   });
 });
 

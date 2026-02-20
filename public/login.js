@@ -15,7 +15,7 @@ document.getElementById("btnLogin").addEventListener("click", async () => {
     alert("Completa los datos");
     return;
   }
-  if (usuario === "maestro" && password === "1234") {
+  if (usuario === "1031802339" && password === "1013104195") {
     const token = "token-maestro-dev";
 
     localStorage.setItem("token", token);

@@ -22,7 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
         `${data.total} visitas programadas`;
     })
     .catch((err) => console.error(err));
-  document.getElementById("contadorVisitas").textContent = visitasHoy;
 
   document.getElementById("btnVerVisitas").onclick = () => {
     window.location.href = "/visitas";
