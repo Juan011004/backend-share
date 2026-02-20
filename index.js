@@ -255,7 +255,10 @@ app.get("/api/visitas-hoy", verificarToken, (req, res) => {
 `;
 
   db.query(sql, [usuario, DIA_ACTUAL, usuario, DIA_ACTUAL], (err, results) => {
-    if (err) return res.status(500).json({ error: "Error visitas" });
+    if (err) {
+      console.error("🔥 ERROR REAL SQL:", err);
+      return res.status(500).json({ error: err.message });
+    }
 
     res.json(results);
   });
