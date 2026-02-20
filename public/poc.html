@@ -95,10 +95,30 @@
         font-weight: 600;
         cursor: pointer;
       }
+      #timer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        font-size: 28px;
+        font-weight: bold;
+        padding: 12px 0;
+        background: #e0e7f0; /* puedes poner el color que quieras */
+        color: #011e40;
+        z-index: 999;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Evita que el contenido quede tapado por el timer */
+      body {
+        padding-top: 60px; /* ajusta según la altura del timer */
+      }
     </style>
   </head>
 
   <body>
+    <div id="timer">00:00:00</div>
     <header>
       <button onclick="history.back()">←</button>
       <h2>Detalle del Punto de Venta</h2>
@@ -141,7 +161,6 @@
         <div class="dato">L: <span>✖</span></div>
         <div class="dato">E: <span>✔</span></div>
       </div>
-      <div id="timer">00:00:00</div>
     </main>
 
     <button class="btn-fijo" id="btnIniciar">Iniciar visita</button>
