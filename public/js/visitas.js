@@ -1,49 +1,38 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const usuario = localStorage.getItem("usuario");
   const token = localStorage.getItem("token");
 
-  if (!usuario || !token) {
+  if (!token) {
     window.location.href = "/login";
     return;
   }
 
-  const visitasDemo = [
-    {
-      nombre: "Tienda La Esquina",
-      codigo: "POC-001",
-      direccion: "Cra 12 #45-33",
-      tiempo: "25 min",
-      tareas: 5,
-      estado: "pendiente",
+  fetch("/api/visitas-hoy", {
+    headers: {
+      Authorization: "Bearer " + token,
     },
-    {
-      nombre: "Supermercado El Ahorro",
-      codigo: "POC-002",
-      direccion: "Cl 80 #10-21",
-      tiempo: "30 min",
-      tareas: 3,
-      estado: "realizada",
-    },
-  ];
+  })
+    .then((res) => res.json())
+    .then((visitas) => {
+      const contenedor = document.getElementById("listaVisitas");
 
-  const contenedor = document.getElementById("listaVisitas");
+      visitas.forEach((v) => {
+        const div = document.createElement("div");
+        div.className = "visita";
 
-  visitasDemo.forEach((v) => {
-    const div = document.createElement("div");
-    div.className = `visita ${v.estado === "realizada" ? "realizada" : ""}`;
+        div.innerHTML = `
+          <h3>${v.CLIENTE}</h3>
+          <p>Código: ${v.codigoclientedestinatario}</p>
+          <p>📍 ${v.DIRECCIÓN}</p>
+          <p>⏱ ${v.Tiempo} | 📝 ${v.tareas} tareas</p>
+        `;
 
-    div.innerHTML = `
-      <h3>${v.nombre}</h3>
-      <p>Código: ${v.codigo}</p>
-      <p>📍 ${v.direccion}</p>
-      <p>⏱ ${v.tiempo} | 📝 ${v.tareas} tareas</p>
-    `;
+        div.onclick = () => {
+          localStorage.setItem("pocSeleccionado", JSON.stringify(v));
+          window.location.href = "/poc";
+        };
 
-    div.onclick = () => {
-      localStorage.setItem("pocSeleccionado", JSON.stringify(v));
-      window.location.href = "/poc";
-    };
-
-    contenedor.appendChild(div);
-  });
+        contenedor.appendChild(div);
+      });
+    })
+    .catch((err) => console.error(err));
 });

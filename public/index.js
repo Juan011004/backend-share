@@ -11,7 +11,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const saludo = document.getElementById("saludo");
   saludo.textContent = `👋 Hola, ${nombre || usuario}`;
 
-  const visitasHoy = 8;
+  fetch("/api/contador-visitas", {
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      document.getElementById("contadorVisitas").textContent =
+        `${data.total} visitas programadas`;
+    })
+    .catch((err) => console.error(err));
   document.getElementById("contadorVisitas").textContent = visitasHoy;
 
   document.getElementById("btnVerVisitas").onclick = () => {

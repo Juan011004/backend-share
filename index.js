@@ -227,6 +227,39 @@ app.get("/perfil", verificarToken, (req, res) => {
   });
 });
 
+app.get("/api/visitas-hoy", verificarToken, (req, res) => {
+  const usuario = req.usuario.usuario;
+
+  // 👇 variable editable
+  const DIA_ACTUAL = 0; // 0 = lunes, cambia cuando quieras
+
+  const sql = `
+    SELECT 
+      b.codigoclientedestinatario,
+      b.CLIENTE,
+      b.DIRECCIÓN,
+      b.latitud,
+      b.longitud,
+      b.Tiempo,
+      COUNT(t.id) as tareas
+    FROM base b
+    LEFT JOIN tareas t 
+      ON b.codigoclientedestinatario = t.codigocliente
+    WHERE b.COM = ?
+      AND b.dia = ?
+    GROUP BY b.codigoclientedestinatario
+  `;
+
+  db.query(sql, [usuario, DIA_ACTUAL], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Error obteniendo visitas" });
+    }
+
+    res.json(results);
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
