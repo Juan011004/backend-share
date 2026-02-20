@@ -296,35 +296,41 @@ app.post("/api/iniciar-visita", verificarToken, (req, res) => {
   const usuario = req.usuario.usuario;
   const DIA_ACTUAL = 1;
 
+  // Verificar si ya hay una visita abierta
   const checkSql = `
-  SELECT * FROM visitas_realizadas
-  WHERE codigo_cliente = ?
-    AND usuario = ?
-    AND dia = ?
-    AND fecha = CURDATE()
-    AND estado = 'ABIERTA'
-`;
+    SELECT * FROM visitas_realizadas
+    WHERE codigo_cliente = ?
+      AND usuario = ?
+      AND dia = ?
+      AND fecha = CURDATE()
+      AND estado = 'ABIERTA'
+  `;
 
   db.query(checkSql, [codigo_cliente, usuario, DIA_ACTUAL], (err, rows) => {
-    if (rows.length > 0) {
-      return res.status(400).json({ error: "Ya iniciada hoy" });
-    }
+    if (err) return res.status(500).json({ error: err.message });
+    if (rows.length > 0)
+      return res.status(400).json({ error: "Ya existe una visita activa" });
 
     const insertSql = `
-  INSERT INTO visitas_realizadas
-  (codigo_cliente, usuario, dia, fecha, hora_inicio, lat_inicio, lng_inicio, estado)
-  VALUES (?, ?, ?, CURDATE(), NOW(), ?, ?, 'ABIERTA')
-`;
+      INSERT INTO visitas_realizadas
+      (codigo_cliente, usuario, dia, fecha, hora_inicio, lat_inicio, lng_inicio, estado)
+      VALUES (?, ?, ?, CURDATE(), NOW(), ?, ?, 'ABIERTA')
+    `;
 
     db.query(
       insertSql,
       [codigo_cliente, usuario, DIA_ACTUAL, latitud, longitud],
-      () => {
-        res.json({ mensaje: "Visita iniciada" });
+      (err2) => {
+        if (err2) return res.status(500).json({ error: err2.message });
+        res.json({
+          mensaje: "Visita iniciada",
+          hora_inicio: new Date().toISOString(),
+        });
       },
     );
   });
 });
+
 app.get("/api/visita-activa/:codigo", verificarToken, (req, res) => {
   const codigo = req.params.codigo;
   const usuario = req.usuario.usuario;
