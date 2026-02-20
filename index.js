@@ -229,9 +229,7 @@ app.get("/perfil", verificarToken, (req, res) => {
 
 app.get("/api/visitas-hoy", verificarToken, (req, res) => {
   const usuario = req.usuario.usuario;
-
-  // 👇 variable editable
-  const DIA_ACTUAL = 1; // 0 = lunes, cambia cuando quieras
+  const DIA_ACTUAL = 1;
 
   const sql = `
     SELECT 
@@ -241,20 +239,23 @@ app.get("/api/visitas-hoy", verificarToken, (req, res) => {
       b.latitud,
       b.longitud,
       b.Tiempo,
-      COUNT(t.id) as tareas
+      COUNT(t.id_tarea) as tareas,
+      vr.estado
     FROM base b
     LEFT JOIN tareas t 
       ON b.codigoclientedestinatario = t.codigo_cliente
+    LEFT JOIN visitas_realizadas vr
+      ON b.codigoclientedestinatario = vr.codigo_cliente
+      AND vr.usuario = ?
+      AND vr.dia = ?
+      AND vr.fecha = CURDATE()
     WHERE b.COM = ?
       AND b.dia = ?
     GROUP BY b.codigoclientedestinatario
   `;
 
-  db.query(sql, [usuario, DIA_ACTUAL], (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Error obteniendo visitas" });
-    }
+  db.query(sql, [usuario, DIA_ACTUAL, usuario, DIA_ACTUAL], (err, results) => {
+    if (err) return res.status(500).json({ error: "Error visitas" });
 
     res.json(results);
   });
@@ -277,6 +278,37 @@ app.get("/api/contador-visitas", verificarToken, (req, res) => {
     }
 
     res.json({ total: results[0].total });
+  });
+});
+app.post("/api/iniciar-visita", verificarToken, (req, res) => {
+  const { codigo_cliente } = req.body;
+  const usuario = req.usuario.usuario;
+  const DIA_ACTUAL = 1;
+
+  const checkSql = `
+    SELECT * FROM visitas_realizadas
+    WHERE codigo_cliente = ?
+      AND usuario = ?
+      AND dia = ?
+      AND fecha = CURDATE()
+  `;
+
+  db.query(checkSql, [codigo_cliente, usuario, DIA_ACTUAL], (err, rows) => {
+    if (rows.length > 0) {
+      return res.status(400).json({
+        error: "La visita ya fue iniciada hoy",
+      });
+    }
+
+    const insertSql = `
+      INSERT INTO visitas_realizadas
+      (codigo_cliente, usuario, dia, fecha, hora_inicio)
+      VALUES (?, ?, ?, CURDATE(), NOW())
+    `;
+
+    db.query(insertSql, [codigo_cliente, usuario, DIA_ACTUAL], () => {
+      res.json({ mensaje: "Visita iniciada" });
+    });
   });
 });
 

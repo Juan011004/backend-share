@@ -16,7 +16,23 @@ document.addEventListener("DOMContentLoaded", () => {
     <div class="dato">Tiempo visita: <span>${poc.tiempo}</span></div>
     <div class="dato">Cantidad tareas: <span>${poc.tareas}</span></div>
   `;
+  let intervalo;
+  let segundos = 0;
 
+  function iniciarTimer() {
+    intervalo = setInterval(() => {
+      segundos++;
+      const horas = String(Math.floor(segundos / 3600)).padStart(2, "0");
+      const minutos = String(Math.floor((segundos % 3600) / 60)).padStart(
+        2,
+        "0",
+      );
+      const seg = String(segundos % 60).padStart(2, "0");
+
+      document.getElementById("timer").textContent =
+        `${horas}:${minutos}:${seg}`;
+    }, 1000);
+  }
   document.getElementById("btnIniciar").onclick = () => {
     localStorage.setItem("visitaActiva", "true");
     window.location.href = "/tareas";
