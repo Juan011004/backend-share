@@ -251,7 +251,14 @@ app.get("/api/visitas-hoy", verificarToken, (req, res) => {
     AND vr.fecha = CURDATE()
   WHERE b.COM = ?
     AND b.dia = ?
-  GROUP BY b.codigoclientedestinatario
+  GROUP BY 
+    b.codigoclientedestinatario,
+    b.CLIENTE,
+    b.\`DIRECCIÓN\`,
+    b.latitud,
+    b.longitud,
+    b.Tiempo,
+    vr.estado
 `;
 
   db.query(sql, [usuario, DIA_ACTUAL, usuario, DIA_ACTUAL], (err, results) => {
