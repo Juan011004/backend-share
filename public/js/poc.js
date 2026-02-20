@@ -16,25 +16,55 @@ document.addEventListener("DOMContentLoaded", () => {
     <div class="dato">Tiempo visita: <span>${poc.tiempo}</span></div>
     <div class="dato">Cantidad tareas: <span>${poc.tareas}</span></div>
   `;
-  let intervalo;
-  let segundos = 0;
+  fetch(`/api/visita-activa/${poc.codigoclientedestinatario}`, {
+    headers: { Authorization: "Bearer " + token },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (!data.activa) return;
 
-  function iniciarTimer() {
-    intervalo = setInterval(() => {
-      segundos++;
-      const horas = String(Math.floor(segundos / 3600)).padStart(2, "0");
-      const minutos = String(Math.floor((segundos % 3600) / 60)).padStart(
-        2,
-        "0",
-      );
-      const seg = String(segundos % 60).padStart(2, "0");
+      document.getElementById("btnIniciar").style.display = "none";
 
-      document.getElementById("timer").textContent =
-        `${horas}:${minutos}:${seg}`;
-    }, 1000);
-  }
+      const inicio = new Date(data.hora_inicio);
+
+      setInterval(() => {
+        const ahora = new Date();
+        const segundos = Math.floor((ahora - inicio) / 1000);
+
+        const horas = String(Math.floor(segundos / 3600)).padStart(2, "0");
+        const minutos = String(Math.floor((segundos % 3600) / 60)).padStart(
+          2,
+          "0",
+        );
+        const seg = String(segundos % 60).padStart(2, "0");
+
+        document.getElementById("timer").textContent =
+          `${horas}:${minutos}:${seg}`;
+      }, 1000);
+    });
   document.getElementById("btnIniciar").onclick = () => {
-    localStorage.setItem("visitaActiva", "true");
-    window.location.href = "/tareas";
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        fetch("/api/iniciar-visita", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify({
+            codigo_cliente: poc.codigoclientedestinatario,
+            latitud: position.coords.latitude,
+            longitud: position.coords.longitude,
+          }),
+        })
+          .then((res) => res.json())
+          .then(() => {
+            window.location.href = "/tareas";
+          });
+      },
+      () => {
+        alert("No se pudo obtener ubicación");
+      },
+    );
   };
 });

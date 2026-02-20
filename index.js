@@ -291,7 +291,7 @@ app.get("/api/contador-visitas", verificarToken, (req, res) => {
   });
 });
 app.post("/api/iniciar-visita", verificarToken, (req, res) => {
-  const { codigo_cliente } = req.body;
+  const { codigo_cliente, latitud, longitud } = req.body;
   const usuario = req.usuario.usuario;
   const DIA_ACTUAL = 1;
 
@@ -305,30 +305,59 @@ app.post("/api/iniciar-visita", verificarToken, (req, res) => {
 
   db.query(checkSql, [codigo_cliente, usuario, DIA_ACTUAL], (err, rows) => {
     if (rows.length > 0) {
-      return res.status(400).json({
-        error: "La visita ya fue iniciada hoy",
-      });
+      return res.status(400).json({ error: "Ya iniciada hoy" });
     }
 
     const insertSql = `
       INSERT INTO visitas_realizadas
-      (codigo_cliente, usuario, dia, fecha, hora_inicio)
-      VALUES (?, ?, ?, CURDATE(), NOW())
+      (codigo_cliente, usuario, dia, fecha, hora_inicio, lat_inicio, lng_inicio)
+      VALUES (?, ?, ?, CURDATE(), NOW(), ?, ?)
     `;
 
-    db.query(insertSql, [codigo_cliente, usuario, DIA_ACTUAL], () => {
-      res.json({ mensaje: "Visita iniciada" });
+    db.query(
+      insertSql,
+      [codigo_cliente, usuario, DIA_ACTUAL, latitud, longitud],
+      () => {
+        res.json({ mensaje: "Visita iniciada" });
+      },
+    );
+  });
+});
+app.get("/api/visita-activa/:codigo", verificarToken, (req, res) => {
+  const codigo = req.params.codigo;
+  const usuario = req.usuario.usuario;
+  const DIA_ACTUAL = 1;
+
+  const sql = `
+    SELECT hora_inicio, estado
+    FROM visitas_realizadas
+    WHERE codigo_cliente = ?
+      AND usuario = ?
+      AND dia = ?
+      AND fecha = CURDATE()
+  `;
+
+  db.query(sql, [codigo, usuario, DIA_ACTUAL], (err, rows) => {
+    if (rows.length === 0) {
+      return res.json({ activa: false });
+    }
+
+    res.json({
+      activa: rows[0].estado !== "CERRADA",
+      hora_inicio: rows[0].hora_inicio,
     });
   });
 });
 app.post("/api/cerrar-visita", verificarToken, (req, res) => {
-  const { codigo_cliente } = req.body;
+  const { codigo_cliente, latitud, longitud } = req.body;
   const usuario = req.usuario.usuario;
   const DIA_ACTUAL = 1;
 
   const sql = `
     UPDATE visitas_realizadas
     SET hora_fin = NOW(),
+        lat_fin = ?,
+        lng_fin = ?,
         estado = 'CERRADA',
         duracion_segundos = TIMESTAMPDIFF(SECOND, hora_inicio, NOW())
     WHERE codigo_cliente = ?
@@ -338,9 +367,13 @@ app.post("/api/cerrar-visita", verificarToken, (req, res) => {
       AND estado = 'ABIERTA'
   `;
 
-  db.query(sql, [codigo_cliente, usuario, DIA_ACTUAL], () => {
-    res.json({ mensaje: "Visita cerrada" });
-  });
+  db.query(
+    sql,
+    [latitud, longitud, codigo_cliente, usuario, DIA_ACTUAL],
+    () => {
+      res.json({ mensaje: "Visita cerrada" });
+    },
+  );
 });
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);

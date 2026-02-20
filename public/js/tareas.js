@@ -47,7 +47,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Cerrar visita
   document.getElementById("btnCerrar").onclick = () => {
-    alert("Visita cerrada correctamente");
-    window.location.href = "/index.html";
+    const poc = JSON.parse(localStorage.getItem("pocSeleccionado"));
+
+    navigator.geolocation.getCurrentPosition((position) => {
+      fetch("/api/cerrar-visita", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify({
+          codigo_cliente: poc.codigoclientedestinatario,
+          latitud: position.coords.latitude,
+          longitud: position.coords.longitude,
+        }),
+      }).then(() => {
+        window.location.href = "/";
+      });
+    });
   };
 });
