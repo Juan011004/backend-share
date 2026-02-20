@@ -11,6 +11,13 @@ document.addEventListener("DOMContentLoaded", () => {
   })
     .then((res) => res.json())
     .then((visitas) => {
+      console.log("VISITAS RECIBIDAS:", visitas);
+
+      if (!Array.isArray(visitas)) {
+        console.error("La respuesta NO es un array:", visitas);
+        return; // detenemos ejecución para que no rompa
+      }
+
       const contenedor = document.getElementById("listaVisitas");
 
       // Ordenar: pendientes arriba
